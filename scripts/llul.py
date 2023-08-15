@@ -250,7 +250,10 @@ class Script(scripts.Script):
         
         if use_mask and mask is not None:
             # Can I read from passed tempfile._TemporaryFileWrapper???
-            mask_image = Image.open(mask.name).convert('L').resize((xi1 - xi0, yi1 - yi0), Image.BILINEAR)
+            if isinstance(mask, tempfile._TemporaryFileWrapper):
+                mask_image = Image.open(mask.name).convert('L').resize((xi1 - xi0, yi1 - yi0), Image.BILINEAR)
+            else:
+                mask_image = decode_base64_to_image(mask).convert('L').resize((xi1 - xi0, yi1 - yi0), Image.BILINEAR)
             mask_tensor = pil_to_tensor(mask_image)
             # :: (1,h,w), each value is between 0 and 1
             area[:, yi0:yi1, xi0:xi1] = mask_tensor
