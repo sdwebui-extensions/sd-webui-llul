@@ -11,6 +11,7 @@ from modules import scripts
 
 from scripts.llul_hooker import Hooker, Upscaler, Downscaler
 from scripts.llul_xyz import init_xyz
+from modules.api.api import decode_base64_to_image
 
 NAME = 'LLuL'
 
@@ -162,7 +163,10 @@ class Script(scripts.Script):
         mask_image = None
         if use_mask and mask is not None:
             # Can I read from passed tempfile._TemporaryFileWrapper???
-            mask_image = Image.open(mask.name).convert('L')
+            if isinstance(mask, tempfile._TemporaryFileWrapper):
+                mask_image = Image.open(mask.name).convert('L')
+            else:
+                mask_image = decode_base64_to_image(mask).convert('L')
             intp = 'lerp'
         
         self.last_hooker = Hooker(
